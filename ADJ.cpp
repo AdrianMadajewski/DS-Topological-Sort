@@ -18,11 +18,10 @@ AdjGraph::AdjGraph(int v, int e) {
 		}
 	}
 }
+
 AdjGraph::AdjGraph(const std::vector<std::pair<int, int>>& data) {
 	V = data[0].first;
 	E = data[0].second;
-
-	// std::cout << data[0].first << ' ' << data[0].second << '\n';
 
 	// Allocate memory
 	adj = new int* [V];
@@ -45,6 +44,7 @@ AdjGraph::~AdjGraph() {
 	delete[] adj;
 }
 
+/*
 void AdjGraph::print() {
 	for (int row = 0; row < V; row++) {
 		for (int col = 0; col < V; col++) {
@@ -53,29 +53,30 @@ void AdjGraph::print() {
 		std::cout << '\n';
 	}
 }
+*/
 
 // Indexing from 0 to n - 1 
 void AdjGraph::addEdge(int first, int second) {
 	adj[first - 1][second - 1] = 1;
 }
 
-void AdjGraph::DFSUtil(int v, std::vector<Color>& visited, std::stack<int>& stack, bool &flag) {
-	visited[v] = GREY;
+void AdjGraph::DFSUtil(int v, std::vector<Color>& visited, std::stack<int>& stack, bool &cycle) {
+	visited[v] = Color::GREY;
 
 	for (int vertex = 0; vertex < V; ++vertex) {
 
 		// Found a cycle
-		if (visited[vertex] == GREY && adj[v][vertex] == 1) {
-			flag = false;
+		if (visited[vertex] == Color::GREY && adj[v][vertex] == 1) {
+			cycle = true;
 			return;
 		}
-		else if(visited[vertex] == WHITE && adj[v][vertex] == 1) {
-			DFSUtil(vertex, visited, stack, flag);
+		else if(visited[vertex] == Color::WHITE && adj[v][vertex] == 1) {
+			DFSUtil(vertex, visited, stack, cycle);
 		}
 	}
 
 	// Mark leaved subtree of the graph as BLACK
-	visited[v] = BLACK;
+	visited[v] = Color::BLACK;
 
 	// If has no other edges to go push the 
 	// current vertex to the stack
@@ -84,19 +85,19 @@ void AdjGraph::DFSUtil(int v, std::vector<Color>& visited, std::stack<int>& stac
 
 void AdjGraph::sortDFS() {
 	std::stack<int> stack;
-	std::vector<Color> visited(V, WHITE);
+	std::vector<Color> visited(V, Color::WHITE);
 
 	// For each vertex check if its been visisted
 	// If not do mark as visited and do a check to push it's
 	// Neighbours to the stack 
-	bool flag = true;
+	bool cycle = false;
 
 	for (int vertex = 0; vertex < V; ++vertex) {
-		if (visited[vertex] == WHITE) {
-			DFSUtil(vertex, visited, stack, flag);
-			if (!flag) {
+		if (visited[vertex] == Color::WHITE) {
+			DFSUtil(vertex, visited, stack, cycle);
+			if (cycle) {
 				std::cout << "There is a cycle in the graph." << '\n';
-				std::cout << "Can't do topological sort." << '\n';
+				std::cout << "Cannot perform topological sort." << '\n';
 				return;
 			}
 		}
@@ -116,7 +117,7 @@ void AdjGraph::sortDEL() {
 	// Create a vector to store indegrees of all vertices
 	std::vector<int> in_degree(V, 0);
 
-	// for each vertex calculate it's indegree
+	// For each vertex calculate it's indegree
 	for (int row = 0; row < V; ++row) {
 		for (int col = 0; col < V; ++col) {
 			if (adj[row][col] == 1) {
@@ -156,7 +157,7 @@ void AdjGraph::sortDEL() {
 
 	if (count_visisted_vertices != V) {
 		std::cout << "There is a cycle in the graph." << '\n';
-		std::cout << "Can't do topological sort." << '\n';
+		std::cout << "Cannot perform topological sort." << '\n';
 		return;
 	}
 

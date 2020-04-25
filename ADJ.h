@@ -4,14 +4,11 @@
 #include <vector>	// for std::vector
 #include <stack>	// for std::stack
 
-enum Color {
-	WHITE,
-	GREY,
-	BLACK,
-};
+
 
 class AdjGraph {
 private:
+	enum class Color { WHITE, GREY, BLACK };
 	size_t V;
 	size_t E;
 	int** adj; // 2D-array
@@ -23,7 +20,7 @@ public:
 	void addEdge(int first, int second);
 	void sortDFS();
 	void sortDEL();
-	void print();
+	// void print();
 };
 
 #endif // !ADJ_H

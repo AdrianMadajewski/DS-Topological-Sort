@@ -6,14 +6,15 @@
 #include <stack>	// for std::stack
 #include <utility>	// for std::pair
 
+
+
 class ListGraph {
 private:
+	enum class Color { WHITE, GREY, BLACK, };
 	size_t V;
 	size_t E;
-
-	// Pointer to std::list
-	std::list<int>* succesors;
-	void DFSUtil(int v, std::vector<bool>& visisted, std::stack<int>& stack);
+	std::list<int>* succ;	// Pointer to std::list
+	void DFSUtil(int v, std::vector<Color>& visisted, std::stack<int>& stack, bool &cycle);
 public:
 	ListGraph(int v, int e);
 	ListGraph(const std::vector<std::pair<int, int>> &data);
