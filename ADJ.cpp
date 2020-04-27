@@ -5,16 +5,14 @@
 #include <stack>		// for std::stack
 #include <queue>		// for std::queue
 
-// https://codeforces.com/blog/entry/4907
-
 AdjGraph::AdjGraph(int v, int e) {
 	V = v;
 	E = e;
-	adj = new int* [V];
+	adj = new Connection* [V];
 	for (int row = 0; row < V; ++row) {
-		adj[row] = new int[V];
+		adj[row] = new Connection[V];
 		for (int col = 0; col < V; ++col) {
-			adj[row][col] = 0;
+			adj[row][col] = Connection::EMPTY;
 		}
 	}
 }
@@ -23,20 +21,22 @@ AdjGraph::AdjGraph(const std::vector<std::pair<int, int>>& data) {
 	V = data[0].first;
 	E = data[0].second;
 
-	// Allocate memory
-	adj = new int* [V];
+	// Allocate memory and set everything to EMPTY
+	adj = new Connection* [V];
 	for (int row = 0; row < V; ++row) {
-		adj[row] = new int[V];
+		adj[row] = new Connection[V];
 		for (int col = 0; col < V; ++col) {
-			adj[row][col] = 0;
+			adj[row][col] = EMPTY;
 		}
 	}
 
+	// Add edges from std::pair
 	for (int i = 1; i <= E; ++i) {
 		addEdge(data[i].first, data[i].second);
 	}
 }
 
+// Clear up the memory
 AdjGraph::~AdjGraph() {
 	for (int i = 0; i < V; ++i) {
 		delete[] adj[i];
@@ -44,58 +44,47 @@ AdjGraph::~AdjGraph() {
 	delete[] adj;
 }
 
-/*
-void AdjGraph::print() {
-	for (int row = 0; row < V; row++) {
-		for (int col = 0; col < V; col++) {
-			std::cout << adj[row][col] << ' ';
-		}
-		std::cout << '\n';
-	}
-}
-*/
-
 // Indexing from 0 to n - 1 
 void AdjGraph::addEdge(int first, int second) {
-	adj[first - 1][second - 1] = 1;
+	adj[first - 1][second - 1] = CONNECTED;
 }
 
-void AdjGraph::DFSUtil(int v, std::vector<Color>& visited, std::stack<int>& stack, bool &cycle) {
-	visited[v] = Color::GREY;
+// Returns true if found a cycle
+bool AdjGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack) {
+	visited[vertex] = Color::GREY;
+	
+	// No cicle assumed
+	bool returnValue = false;
 
-	for (int vertex = 0; vertex < V; ++vertex) {
-
+	// For each vertex check it's connections
+	for (int current = 0; current < V; ++current) {
 		// Found a cycle
-		if (visited[vertex] == Color::GREY && adj[v][vertex] == 1) {
-			cycle = true;
-			return;
+		if (visited[current] == Color::GREY && adj[vertex][current] == CONNECTED) {
+			returnValue = true;
 		}
-		else if(visited[vertex] == Color::WHITE && adj[v][vertex] == 1) {
-			DFSUtil(vertex, visited, stack, cycle);
+		else if(visited[current] == Color::WHITE && adj[vertex][current] == CONNECTED) {
+			returnValue = DFSUtil(current, visited, stack);
 		}
 	}
 
 	// Mark leaved subtree of the graph as BLACK
-	visited[v] = Color::BLACK;
+	visited[vertex] = Color::BLACK;
 
-	// If has no other edges to go push the 
-	// current vertex to the stack
-	stack.push(v);
+	// If has no other edges to go 
+	// push the current vertex to the stack
+	stack.push(vertex);
+
+	return returnValue;
 }
 
 void AdjGraph::sortDFS() {
 	std::stack<int> stack;
 	std::vector<Color> visited(V, Color::WHITE);
 
-	// For each vertex check if its been visisted
-	// If not do mark as visited and do a check to push it's
-	// Neighbours to the stack 
-	bool cycle = false;
-
+	// For each vertex check if it hasn't been visisted
 	for (int vertex = 0; vertex < V; ++vertex) {
 		if (visited[vertex] == Color::WHITE) {
-			DFSUtil(vertex, visited, stack, cycle);
-			if (cycle) {
+			if(DFSUtil(vertex, visited, stack)) {
 				std::cout << "There is a cycle in the graph." << '\n';
 				std::cout << "Cannot perform topological sort." << '\n';
 				return;
@@ -120,7 +109,7 @@ void AdjGraph::sortDEL() {
 	// For each vertex calculate it's indegree
 	for (int row = 0; row < V; ++row) {
 		for (int col = 0; col < V; ++col) {
-			if (adj[row][col] == 1) {
+			if (adj[row][col] == CONNECTED) {
 				++in_degree[col];
 			}
 		}
@@ -135,26 +124,26 @@ void AdjGraph::sortDEL() {
 	}
 
 	int count_visisted_vertices = 0;
-	std::vector<int> top_order;
+	std::vector<int> sorted;
 
 	while (!queue.empty()) {
-		int q = queue.front();
+		int dropped = queue.front();
 		queue.pop();
-		top_order.push_back(q);
+		sorted.push_back(dropped);
 
-		// Iterate through the neibhbours and decrease their in-degree
+		// Iterate through the connections and decrease their in-degree
 		for (int vertex = 0; vertex < V; ++vertex) {
-			if (adj[q][vertex]) {
+			if (adj[dropped][vertex] == CONNECTED) {
 				// Add to the starting queue
 				if (--in_degree[vertex] == 0) {
 					queue.push(vertex);
 				}
 			}
 		}
-
 		++count_visisted_vertices;
 	}
 
+	// If there are any vertices left there must be a cycle
 	if (count_visisted_vertices != V) {
 		std::cout << "There is a cycle in the graph." << '\n';
 		std::cout << "Cannot perform topological sort." << '\n';
@@ -162,7 +151,7 @@ void AdjGraph::sortDEL() {
 	}
 
 	std::cout << "DEL sort: ";
-	for (const auto& vertex : top_order) {
+	for (const auto& vertex : sorted) {
 		std::cout << vertex + 1 << ' ';
 	}
 	std::cout << '\n';

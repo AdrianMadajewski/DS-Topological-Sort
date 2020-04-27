@@ -25,7 +25,7 @@ int getUserInput(const std::string& message) {
 	}
 }
 
-int getUserDataSize(const std::string& message) {
+int getUserVerticesSize(const std::string& message) {
 	if (!message.empty()) {
 		std::cout << message << '\n';
 	}
@@ -39,18 +39,36 @@ int getUserDataSize(const std::string& message) {
 	}
 }
 
-int getUserVertex(int v_max, const std::string& message) {
+int getUserVertex(int vMaxCapacity, const std::string& message) {
 	if (!message.empty()) {
 		std::cout << message << '\n';
 	}
 
 	while (true) {
 		int x{ getUserInput() };
-		if (x > 0 && x <= v_max) {
+		if (x > 0 && x <= vMaxCapacity) {
 			return x;
 		}
 		else {
 			std::cerr << "Invalid input - out of vertices range." << '\n';
+		}
+	}
+}
+
+int getUserEdgesSize(int vMaxCapacity, const std::string& message) {
+	if (!message.empty()) {
+		std::cout << message << '\n';
+	}
+
+	const int eMaxCapacity = (vMaxCapacity * (vMaxCapacity - 1));
+	while (true) {
+		int x{ getUserInput() };
+		if (x > 0 && x <= eMaxCapacity) {
+			return x;
+		}
+		else {
+			std::cerr << "Invalid input - out of edges range. (max: " << eMaxCapacity << ")" << '\n';
+			std::cerr << "Maximum number of edges must be V(V-1) for directed graph" << '\n';
 		}
 	}
 }
@@ -60,21 +78,17 @@ std::vector<std::pair<int, int>> getUserPairs(const std::string& message) {
 		std::cout << message << '\n';
 	}
 
-	int v = getUserDataSize("Enter number of vertices: ");
-	int e = getUserDataSize("Enter number of edges: ");
-
+	int v = getUserVerticesSize("Enter number of vertices: ");
+	int e = getUserEdgesSize(v, "Enter number of edges: ");
 	auto pair = std::make_pair(v, e);
-
 	std::vector<std::pair<int, int>> result{ pair };
 
 	for (int i = 0; i < e; ++i) {
-		std::pair<int, int> pair;
 		std::cout << i + 1 << " -> v1: ";
-		int v1 = getUserVertex(v);
+		auto v1 = getUserVertex(v);
 		std::cout << i + 1 << " -> v2: ";
-		int v2 = getUserVertex(v);
-		pair = std::make_pair(v1, v2);
-		result.emplace_back(pair);
+		auto v2 = getUserVertex(v);
+		result.emplace_back(std::make_pair(v1, v2));
 	}
 	return result;
 }

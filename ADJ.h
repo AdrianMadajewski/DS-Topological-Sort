@@ -4,23 +4,21 @@
 #include <vector>	// for std::vector
 #include <stack>	// for std::stack
 
-
-
 class AdjGraph {
 private:
-	enum class Color { WHITE, GREY, BLACK };
+	enum Color { WHITE, GREY, BLACK };
+	enum Connection { EMPTY, CONNECTED };
 	size_t V;
 	size_t E;
-	int** adj; // 2D-array
-	void DFSUtil(int v, std::vector<Color>& visited, std::stack<int>& stack, bool &flag);
+	Connection** adj; // 2D-array
+	bool DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack);
 public:
-	AdjGraph(int v, int e);
+	AdjGraph(int vertices, int edges);
 	AdjGraph(const std::vector<std::pair<int, int>>& data);
 	~AdjGraph();
 	void addEdge(int first, int second);
 	void sortDFS();
 	void sortDEL();
-	// void print();
 };
 
 #endif // !ADJ_H

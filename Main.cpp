@@ -2,22 +2,25 @@
 
 #include "ADJ.h"
 #include "List.h"
+#include "GraphMatrix.h"
 #include "Input.h"
 #include "File.h"
 
 // https://www.hackerearth.com/practice/algorithms/graphs/topological-sort/tutorial/
+// https://codeforces.com/blog/entry/4907
 
 int main()
 {
-	const auto test = getUserPairs();
-	AdjGraph a(test);
-	ListGraph b(test);
+	const auto test = loadDataFromFile("input1.txt");
+	
+	ListGraph a(test);
+	AdjGraph b(test);
+	GraphMatrix c(test);
 
-	std::cout << "adj: "; a.sortDFS();
-	std::cout << "adj: "; a.sortDEL();
-
-	std::cout << "list: "; b.sortDFS();
-	std::cout << "list: "; b.sortDEL();
+	a.sortDFS();
+	b.sortDFS();
+	c.printMatrix();
+	c.sortDFS();
 
 	return 0;
 }
