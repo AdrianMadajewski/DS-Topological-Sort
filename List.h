@@ -9,11 +9,11 @@
 class ListGraph {
 private:
 	enum Color { WHITE, GREY, BLACK, };
+	std::list<int>* succ;	// Pointer to std::list
+	void DFSUtil(int vertex, std::vector<Color>& visisted, std::stack<int>& stack, bool &hasCycle);
+public:
 	size_t V;
 	size_t E;
-	std::list<int>* succ;	// Pointer to std::list
-	bool DFSUtil(int vertex, std::vector<Color>& visisted, std::stack<int>& stack);
-public:
 	ListGraph(int vertices, int edges); // this is useless for now
 	ListGraph(const std::vector<std::pair<int, int>> &data);
 	~ListGraph();

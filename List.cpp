@@ -29,21 +29,18 @@ void ListGraph::addEdge(int first, int second) {
 	succ[first - 1].push_back(second - 1);
 }
 
-// Returns true if found a cycle
-bool ListGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack) {
+void ListGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack, bool &hasCycle) {
 	visited[vertex] = Color::GREY;
-
-	// No cycle assumed
-	bool returnValue = false;
 
 	std::list<int>::iterator it;
 	for (it = succ[vertex].begin(); it != succ[vertex].end(); ++it) {
 		// Found cycle
 		if (visited[*it] == Color::GREY) {
-			returnValue = true;
+			hasCycle = true;
+			return;
 		}
 		else if (visited[*it] == Color::WHITE) {
-			returnValue = DFSUtil(*it, visited, stack);
+			DFSUtil(*it, visited, stack, hasCycle);
 		}
 	}
 	// Mark leaved subtree of the graph as BLACK
@@ -52,16 +49,16 @@ bool ListGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>
 	// If has no other edges to go 
 	// push the current vertex to the stack
 	stack.push(vertex);
-
-	return returnValue;
 }
 
 void ListGraph::sortDFS() {
 	std::stack<int> stack;
 	std::vector<Color> visited(V, Color::WHITE);
+	bool hasCycle = false;
 	for (int vertex = 0; vertex < V; ++vertex) {
 		if (visited[vertex] == Color::WHITE) {
-			if (DFSUtil(vertex, visited, stack)) {
+			DFSUtil(vertex, visited, stack, hasCycle);
+			if (hasCycle) {
 				std::cout << "There is a cycle in the graph." << '\n';
 				std::cout << "Cannot perform topological sort." << '\n';
 				return;
@@ -69,12 +66,14 @@ void ListGraph::sortDFS() {
 		}
 	}
 
+	/*
 	std::cout << "DFS sort: ";
 	while (!stack.empty()) {
 		std::cout << stack.top() + 1 << ' ';
 		stack.pop();
 	}
 	std::cout << '\n';
+	*/
 }
 
 void ListGraph::sortDEL() {
@@ -119,9 +118,11 @@ void ListGraph::sortDEL() {
 		return;
 	}
 
+	/*
 	std::cout << "DEL sort: ";
 	for (const auto& vertex : sorted) {
 		std::cout << vertex + 1 << ' ';
 	}
 	std::cout << '\n';
+	*/
 }

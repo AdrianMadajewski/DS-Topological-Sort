@@ -8,11 +8,11 @@ class AdjGraph {
 private:
 	enum Color { WHITE, GREY, BLACK };
 	enum Connection { EMPTY, CONNECTED };
+	int** adj; // 2D-array
+	void DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack, bool &hasCycle);
+public:
 	size_t V;
 	size_t E;
-	Connection** adj; // 2D-array
-	bool DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack);
-public:
 	AdjGraph(int vertices, int edges);
 	AdjGraph(const std::vector<std::pair<int, int>>& data);
 	~AdjGraph();

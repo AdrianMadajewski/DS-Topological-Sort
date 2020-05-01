@@ -13,11 +13,13 @@ public:
 	~GraphMatrix();
 	void printMatrix();
 	void sortDFS();
-private:
-	enum Color { WHITE, GREY, BLACK };
+	void sortDEL();
+
 	size_t V;
 	size_t E;
-
+private:
+	enum Color { WHITE, GREY, BLACK };
+	
 	int first_succ_col;
 	int first_pred_col;
 	int first_no_inc_col;
@@ -25,12 +27,12 @@ private:
 	int** matrix;
 	std::list<int>* succ;
 	std::list<int>* pred;
-	std::list<int>* noInc;
+	// std::list<int>* noInc;
 	void removeIncidenced(int first, int second);
 	int getMinElement(std::list<int>& data);
 	void addSuccesor(int first, int second);
 	void addPredecessor(int first, int second);
-	bool DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int> &stack);
+	void DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int> &stack, bool &hasCycle);
 };
 
 #endif // !GRAPH_MATRIX_H

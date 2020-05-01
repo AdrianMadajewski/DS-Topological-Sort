@@ -9,6 +9,7 @@ int getUserInput(const std::string& message = "");
 int getUserVerticesSize(const std::string& message = "");
 int getUserEdgesSize(int vMaxCapacity, const std::string& message = "");
 int getUserVertex(int vMaxCapacity, const std::string& message = "");
+bool askUserIf(const std::string &message = "");
 std::vector<std::pair<int, int>> getUserPairs(const std::string& message = "");
 
 #endif // !INPUT_H

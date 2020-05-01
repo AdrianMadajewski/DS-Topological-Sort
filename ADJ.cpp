@@ -8,11 +8,11 @@
 AdjGraph::AdjGraph(int v, int e) {
 	V = v;
 	E = e;
-	adj = new Connection* [V];
+	adj = new int* [V];
 	for (int row = 0; row < V; ++row) {
-		adj[row] = new Connection[V];
+		adj[row] = new int[V];
 		for (int col = 0; col < V; ++col) {
-			adj[row][col] = Connection::EMPTY;
+			adj[row][col] = 0;
 		}
 	}
 }
@@ -22,11 +22,11 @@ AdjGraph::AdjGraph(const std::vector<std::pair<int, int>>& data) {
 	E = data[0].second;
 
 	// Allocate memory and set everything to EMPTY
-	adj = new Connection* [V];
+	adj = new int* [V];
 	for (int row = 0; row < V; ++row) {
-		adj[row] = new Connection[V];
+		adj[row] = new int[V];
 		for (int col = 0; col < V; ++col) {
-			adj[row][col] = EMPTY;
+			adj[row][col] = 0;
 		}
 	}
 
@@ -46,24 +46,22 @@ AdjGraph::~AdjGraph() {
 
 // Indexing from 0 to n - 1 
 void AdjGraph::addEdge(int first, int second) {
-	adj[first - 1][second - 1] = CONNECTED;
+	adj[first - 1][second - 1] = 1;
 }
 
 // Returns true if found a cycle
-bool AdjGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack) {
+void AdjGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>& stack, bool &hasCycle) {
 	visited[vertex] = Color::GREY;
-	
-	// No cicle assumed
-	bool returnValue = false;
 
 	// For each vertex check it's connections
 	for (int current = 0; current < V; ++current) {
 		// Found a cycle
-		if (visited[current] == Color::GREY && adj[vertex][current] == CONNECTED) {
-			returnValue = true;
+		if (visited[current] == Color::GREY && adj[vertex][current] == 1) {
+			hasCycle = true;
+			return;
 		}
-		else if(visited[current] == Color::WHITE && adj[vertex][current] == CONNECTED) {
-			returnValue = DFSUtil(current, visited, stack);
+		else if(visited[current] == Color::WHITE && adj[vertex][current] == 1) {
+			DFSUtil(current, visited, stack, hasCycle);
 		}
 	}
 
@@ -73,8 +71,6 @@ bool AdjGraph::DFSUtil(int vertex, std::vector<Color>& visited, std::stack<int>&
 	// If has no other edges to go 
 	// push the current vertex to the stack
 	stack.push(vertex);
-
-	return returnValue;
 }
 
 void AdjGraph::sortDFS() {
@@ -82,9 +78,12 @@ void AdjGraph::sortDFS() {
 	std::vector<Color> visited(V, Color::WHITE);
 
 	// For each vertex check if it hasn't been visisted
+	bool hasCycle = false;
+
 	for (int vertex = 0; vertex < V; ++vertex) {
 		if (visited[vertex] == Color::WHITE) {
-			if(DFSUtil(vertex, visited, stack)) {
+			DFSUtil(vertex, visited, stack, hasCycle);
+			if (hasCycle) {
 				std::cout << "There is a cycle in the graph." << '\n';
 				std::cout << "Cannot perform topological sort." << '\n';
 				return;
@@ -94,12 +93,14 @@ void AdjGraph::sortDFS() {
 
 	// Empty the stack structure
 	// + 1 because indexing from 0 
+	/*
 	std::cout << "DFS sort: ";
 	while (!stack.empty()) {
 		std::cout << stack.top() + 1 << ' ';
 		stack.pop();
 	}
 	std::cout << '\n';
+	*/
 }
 
 void AdjGraph::sortDEL() {
@@ -123,7 +124,7 @@ void AdjGraph::sortDEL() {
 		}
 	}
 
-	int count_visisted_vertices = 0;
+	int count_visited_vertices = 0;
 	std::vector<int> sorted;
 
 	while (!queue.empty()) {
@@ -140,19 +141,21 @@ void AdjGraph::sortDEL() {
 				}
 			}
 		}
-		++count_visisted_vertices;
+		++count_visited_vertices;
 	}
 
 	// If there are any vertices left there must be a cycle
-	if (count_visisted_vertices != V) {
+	if (count_visited_vertices != V) {
 		std::cout << "There is a cycle in the graph." << '\n';
 		std::cout << "Cannot perform topological sort." << '\n';
 		return;
 	}
 
+	/*
 	std::cout << "DEL sort: ";
 	for (const auto& vertex : sorted) {
 		std::cout << vertex + 1 << ' ';
 	}
 	std::cout << '\n';
+	*/
 }
